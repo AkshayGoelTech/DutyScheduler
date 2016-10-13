@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+
+  "name": "Duty Scheduler",
+  "description": "Prototype for automatically scheduling Duty Schedules",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://doodle.com/*"],
+      "js": ["jquery-3.1.1.js", "parse.js"]
+    }
+  ],
+  "web_accessible_resources": ["*"],
+  "permissions": [
+    "activeTab",
+	"tabs" 
+  ]
+}
