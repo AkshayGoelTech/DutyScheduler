@@ -9,6 +9,7 @@
 var Availability = function(){};
 var Day = function(){};
 var assignCount = function(){};
+var saveFile = {};
 var personArray = []; //Array of Persons
 var Day = [];
 var mapKeys;
@@ -16,7 +17,44 @@ var mapKeys;
 
 $(document).ready(function() {
 
-	$('.asep')[0].click(); //Open the fold in doodle poll to expose all dates
+	$('#pollTitle').append('<button type="button" id="schedBtn">Schedule Duty</button>');	
+	$('head').append('<link rel="stylesheet" href="' + 
+		chrome.extension.getURL('css/modal/bootstrap.min.css') + '">');
+	
+	$('body').append('<div id="modalContent">HI</div>');
+	$('#modalContent').load(chrome.extension.getURL('html/calendar.html'));
+
+	$('#schedBtn').click(function() {
+		parseAndAssignEveryone();
+		$('#calModal').modal('show');
+		saveData();
+	})
+
+})
+
+function saveData() {
+	var key = window.location.pathname.split("/")[2];
+	var data = {'Day': Day, 'Availability': Availability, 'names': mapKeys, 'assignCount':assignCount, 'test': "3"};
+	saveFile[key] = data;
+	chrome.storage.sync.set(saveFile, function() {	
+		start();
+	});
+}
+
+function instantiateVariables() {
+	Availability = function(){};
+	Day = function(){};
+	assignCount = function(){};
+	personArray = []; //Array of Persons
+	Day = [];
+}
+
+function parseAndAssignEveryone() {
+
+	instantiateVariables();
+	if ($('.asep')[0])
+		$('.asep')[0].click(); //Open the fold in doodle poll to expose all dates if it exists
+
 	var daysLeftToSchedule = [];
 	for (var i = $('.participant')[1].children.length-1, k=0; i>=1 ; i--, k++) 
 		{daysLeftToSchedule[k] = i;}
@@ -54,12 +92,24 @@ $(document).ready(function() {
 	mapKeys = Object.keys(Availability);
 	mapKeys.sort(function(a,b){return Availability[a].length - Availability[b].length});
 
+
 	for (var key in mapKeys) {
 	    console.log(mapKeys[key] + " -> " + Availability[mapKeys[key]]);
 	}
 
 	while (daysLeftToSchedule.length > 0) {
+		personArray = mapKeys.slice();
 		for (var key = 0; key < mapKeys.length; key++) {
+			console.log(daysLeftToSchedule);
+
+			//No One Available
+			if (daysLeftToSchedule.length > 0 && 
+					Day[daysLeftToSchedule[daysLeftToSchedule.length - 1]].available.length == 0) {
+				Day[dayToAssign].assigned.push("?");
+				Day[dayToAssign].assigned.push("?");
+				daysLeftToSchedule.pop();
+				continue;
+			}
 			//debugger;
 			var name = mapKeys[key];
 			if (personArray.length == 0) {
@@ -71,6 +121,16 @@ $(document).ready(function() {
 			for (var i = 0; i < Availability[name].length; i++) {
 				if (Day[Availability[name][i]].assigned.length == 0) {
 					dayToAssign = Availability[name][i];
+
+					//Only One Person Available
+					if (Day[dayToAssign].available.length == 1) {
+						Day[dayToAssign].assigned.push(name);
+						Day[dayToAssign].assigned.push("?");
+						daysLeftToSchedule.splice(daysLeftToSchedule.indexOf(dayToAssign), 1);
+						personArray.splice(personArray.indexOf(name), 1);
+						break;
+					}
+
 					var otherName = closestPersonAvailable(name, dayToAssign);
 					if (otherName == "-1") {
 						personArray = [];
@@ -88,8 +148,9 @@ $(document).ready(function() {
 		}
 	}
 
+	//Output
 	for (var i = 1; i < $('.participant')[1].children.length-1; i++) {
-		console.log(Day[i].assigned);
+		console.log("Day " + i + ": " + Day[i].assigned[0] + ", " + Day[i].assigned[1]);
 		if (assignCount[Day[i].assigned[0]] === undefined) {
 			assignCount[Day[i].assigned[0]] = 0;
 		}
@@ -103,9 +164,7 @@ $(document).ready(function() {
 	for (var key in mapKeys) {
 		console.log(mapKeys[key] + ": " + assignCount[mapKeys[key]]);
 	}
-
-	//debugger;
-})
+}
 
 
 function closestPersonAvailable(name, dayToAssign) {
@@ -127,6 +186,7 @@ function closestPersonAvailable(name, dayToAssign) {
 		currentName = mapKeys[i+1];
 	}
 	return "-1";
+
 }
 
 function compare(a, b) {
