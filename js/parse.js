@@ -70,7 +70,7 @@ function parseAndAssignEveryone() {
 	*/
 	for (var i = 1; i < $('.participant').length; i++) {
 		var currParticipant = $('.participant')[i];
-		var name = currParticipant.children[0].children[2].title;
+		var name = currParticipant.children[0].children[2].title.split(" ")[0];
 		personArray.push(name);
 
 		Availability[personArray[personArray.length-1]] = [];
@@ -197,4 +197,17 @@ function compare(a, b) {
 		return 1;
 	}
 	return 0;
+}
+
+function makeInputFile() {
+	var inputFile = "";
+	for (var key in mapKeys) {
+		var name = mapKeys[key];
+    	inputFile+=(name);
+    	for (var i = 0; i < Availability[name].length; i++) {
+    		inputFile+= (" " + Availability[name][i])
+    	}
+    	inputFile+="\n";
+	}
+	$('.modal-footer').append(inputFile);
 }
