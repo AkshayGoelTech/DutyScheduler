@@ -9,6 +9,11 @@
     "default_icon": "images/icon.png",
     "default_popup": "html/popup.html"
   },
+  "icons" : {
+  	"16":"icon.png",
+  	"48":"icon.png",
+  	"128":"icon.png"
+  },
   "content_scripts": [
     {
       "matches": ["*://doodle.com/*"],
