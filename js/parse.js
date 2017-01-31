@@ -28,6 +28,7 @@ $(document).ready(function() {
 		parseAndAssignEveryone();
 		$('#calModal').modal('show');
 		saveData();
+		//makeInputFile();
 	})
 
 })

@@ -17,7 +17,7 @@ function makeCalendar(storage) {
 	$('#cal-body-r2').append('<b>Duty Counter:</b><br></div>');
 	$('#cal-label').text($('#pollTitle').text().split('Schedule Duty')[0]);
 	var cols = 7;
-	var rows = Math.floor(storage.Day.length / cols) + 1;
+	var rows = 5;
 
 	$('#cal-body-r1').append('<table id="cal-table" border="1px solid black" style="width:100%;"> <tbody></tbody></table>');
 	var tableRef = document.getElementById('cal-table').getElementsByTagName('tbody')[0];
@@ -42,11 +42,19 @@ function makeCalendar(storage) {
 	var dateObject = new Date(firstDay);
 	var currCellId = dateObject.getDay();
 
-	for (var i = 1; i < storage.Day.length; i++) {
-		var RAs = storage.Day[i].assigned;
+	for (var i = 1; i < 32; i++) {
 		var currCell = $('#cell-' + currCellId);
 		currCell.text('');
 		currCell.append("<div class='dateNum'>" + i + "</div>");
+		currCellId++;
+	}
+
+	var currCellId = dateObject.getDay() + parseInt($('.dsep')[0].children[0].innerHTML.split(';')[1]) - 1;
+	for (var i = 1; i < storage.Day.length; i++) {
+		var RAs = storage.Day[i].assigned;
+		var currCell = $('#cell-' + currCellId);
+		var $btn = '<button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">  Single toggle</button>';
+		//currCell.append($btn);
 		currCell.append(RAs[0].split(' ')[0] + "<br>");
 		currCell.append(RAs[1].split(' ')[0]);
 		currCellId++;
